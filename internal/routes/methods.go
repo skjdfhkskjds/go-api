@@ -292,9 +292,9 @@ func getPathSegment(path string) (string, string) {
 // getRouteTypeFromSegment determines the node type and parameter name from a
 // segment of a path
 func getRouteTypeFromSegment(segment string) (RouteType, string) {
-	if strings.HasPrefix(segment, ":") {
-		return RouteTypeParam, segment[1:]
-	} else if strings.HasPrefix(segment, "*") {
+	if isPathParam(segment) {
+		return RouteTypeParam, segment[1 : len(segment)-1]
+	} else if isWildcard(segment) {
 		return RouteTypeWildcard, segment[1:]
 	}
 

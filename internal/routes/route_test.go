@@ -40,7 +40,7 @@ func TestNewRouteNode(t *testing.T) {
 		},
 		{
 			name:      "param node",
-			path:      ":id",
+			path:      "{id}",
 			routeType: RouteTypeParam,
 			paramName: "id",
 			parent:    nil,
@@ -126,13 +126,13 @@ func TestRouteNode_Route_ParameterRoutes(t *testing.T) {
 	root := NewRouteNode("", RouteTypeNone, "", nil)
 
 	// Add parameter routes
-	node, err := root.Route(http.MethodGet, "/users/:id", newTestHandler("user"))
+	node, err := root.Route(http.MethodGet, "/users/{id}", newTestHandler("user"))
 	require.NoError(t, err)
-	require.Equal(t, "/users/:id", node.Path())
+	require.Equal(t, "/users/{id}", node.Path())
 
-	node, err = root.Route(http.MethodGet, "/users/:id/posts/:postId", newTestHandler("userPost"))
+	node, err = root.Route(http.MethodGet, "/users/{id}/posts/{postId}", newTestHandler("userPost"))
 	require.NoError(t, err)
-	require.Equal(t, "/users/:id/posts/:postId", node.Path())
+	require.Equal(t, "/users/{id}/posts/{postId}", node.Path())
 
 	// Test finding parameter routes
 	route, err := root.Find(http.MethodGet, "/users/123")
@@ -180,9 +180,9 @@ func TestRouteNode_Route_RoutePriority(t *testing.T) {
 	root := NewRouteNode("", RouteTypeNone, "", nil)
 
 	// Add routes with different priorities
-	node, err := root.Route(http.MethodGet, "/users/:id", newTestHandler("param"))
+	node, err := root.Route(http.MethodGet, "/users/{id}", newTestHandler("param"))
 	require.NoError(t, err)
-	require.Equal(t, "/users/:id", node.Path())
+	require.Equal(t, "/users/{id}", node.Path())
 
 	node, err = root.Route(http.MethodGet, "/users/admin", newTestHandler("static"))
 	require.NoError(t, err)
@@ -368,8 +368,8 @@ func TestGetRouteTypeFromSegment(t *testing.T) {
 		expectedParamName string
 	}{
 		{"users", RouteTypeStatic, ""},
-		{":id", RouteTypeParam, "id"},
-		{":userId", RouteTypeParam, "userId"},
+		{"{id}", RouteTypeParam, "id"},
+		{"{userId}", RouteTypeParam, "userId"},
 		{"*path", RouteTypeWildcard, "path"},
 		{"*filepath", RouteTypeWildcard, "filepath"},
 	}
@@ -410,7 +410,7 @@ func BenchmarkRouteNode_FindStaticRoute(b *testing.B) {
 func BenchmarkRouteNode_FindParameterRoute(b *testing.B) {
 	root := NewRouteNode("", RouteTypeNone, "", nil)
 	handler := newTestHandler("benchmark")
-	root.Route(http.MethodGet, "/users/:id", handler)
+	root.Route(http.MethodGet, "/users/{id}", handler)
 
 	b.ResetTimer()
 	for b.Loop() {
